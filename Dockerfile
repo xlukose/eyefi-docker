@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM python:2.7-alpine
 
 EXPOSE 59278
 
