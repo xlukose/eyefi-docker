@@ -454,7 +454,7 @@ def EyeFiRequestHandlerFactory(config, flickr):
 
             imageTarfileName = handler.extractedElements["filename"]
 
-            geotag_enable = int(self.server.config.getint('EyeFiServer','geotag_enable'))
+            geotag_enable = 0
             if geotag_enable:
                 geotag_accuracy = int(self.server.config.get('EyeFiServer','geotag_accuracy'))
 
@@ -776,35 +776,7 @@ def runEyeFi():
     config = ConfigParser.SafeConfigParser(defaults=DEFAULTS)
     config.read(configfile)
 
-    # check whether flickr needs to be set up
-    if config.getint('EyeFiServer', 'flickr_enable') > 0:
-        if len(config.get('EyeFiServer', 'flickr_key')) and len(config.get('EyeFiServer', 'flickr_secret')):
-            eyeFiLogger.info('Flickr uploading enabled')
-            import flickr_api
-            flickr_api.set_keys(config.get('EyeFiServer', 'flickr_key'), config.get('EyeFiServer', 'flickr_secret'))
-            flickr_api.is_public = int(config.get('EyeFiServer','flickr_public'))
-            flickr_api.is_family = int(config.get('EyeFiServer','flickr_family'))
-            flickr_api.is_friend = int(config.get('EyeFiServer','flickr_friend'))
-
-            try:
-                a = flickr_api.auth.AuthHandler.load('./flickr.verifier')
-                flickr_api.set_auth_handler(a)
-                eyeFiLogger.info('loaded Flickr credentials')
-            except:
-                a = flickr_api.auth.AuthHandler()
-                url = a.get_authorization_url('write')
-                print 'Please visit this URL and grant access:'
-                print url
-                a.set_verifier(raw_input('Enter the value of <oauth_verifier>: '))
-                a.save('/tmp/src/flickr.verifier')
-                print 'Thanks! This process will now exit. You should then rebuild the Docker image according to the README instructions.'
-                sys.exit(0)
-        else:
-            eyeFiLogger.error('Flickr upload enabled, but flickr_key/flickr_secret not set. Exiting...')
-            sys.exit(1)
-    else:
-        flickr_api = None
-
+    flickr_api = None
 
     server_address = (config.get('EyeFiServer','host_name'), config.getint('EyeFiServer','host_port'))
 
